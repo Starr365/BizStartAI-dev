@@ -39,10 +39,16 @@ jobs:
 
       - name: Debug Output (List Files)
         run: |
-          ls -R .vercel/output || echo "No .vercel/output found"
-          ls -R dist || echo "No dist found"
+          echo "Listing current directory:"
+          ls -la
+          echo "Listing .vercel directory:"
+          ls -la .vercel || echo ".vercel not found"
+          echo "Listing .vercel/output directory:"
+          ls -R .vercel/output || echo ".vercel/output not found"
+          echo "Listing dist directory:"
+          ls -R dist || echo "dist not found"
         working-directory: ./bizstart-frontend
 
       - name: Deploy to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
         working-directory: ./bizstart-frontend
