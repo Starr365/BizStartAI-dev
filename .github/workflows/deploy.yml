@@ -12,6 +12,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ./bizstart-frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./bizstart-frontend
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
@@ -24,6 +35,12 @@ jobs:
 
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./bizstart-frontend
+
+      - name: Debug Output (List Files)
+        run: |
+          ls -R .vercel/output || echo "No .vercel/output found"
+          ls -R dist || echo "No dist found"
         working-directory: ./bizstart-frontend
 
       - name: Deploy to Vercel
