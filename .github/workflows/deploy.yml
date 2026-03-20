@@ -27,28 +27,13 @@ jobs:
         run: npm install --global vercel@latest
 
       - name: Pull Vercel Environment
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: ./bizstart-frontend
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --cwd ./bizstart-frontend
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: ./bizstart-frontend
-
-      - name: Debug Output (List Files)
-        run: |
-          echo "Listing current directory:"
-          ls -la
-          echo "Listing .vercel directory:"
-          ls -la .vercel || echo ".vercel not found"
-          echo "Listing .vercel/output directory:"
-          ls -R .vercel/output || echo ".vercel/output not found"
-          echo "Listing dist directory:"
-          ls -R dist || echo "dist not found"
-        working-directory: ./bizstart-frontend
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --yes --cwd ./bizstart-frontend
 
       - name: Deploy to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
-        working-directory: ./bizstart-frontend
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --yes --cwd ./bizstart-frontend
