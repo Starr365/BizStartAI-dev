@@ -16,17 +16,29 @@ const progressRoutes = require('./routes/progress.routes');
 
 const app = express();
 
-// setup cors to allow postman/mobile and specific frontend
 app.use(
   cors({
-    origin: (origin, callback) => {
+    origin: function (origin, callback) {
+      // allow requests with no origin (mobile apps, postman)
       if (!origin) return callback(null, true);
 
-      if (process.env.FRONTEND_URL && origin !== process.env.FRONTEND_URL) {
-        return callback(new Error('Not allowed by CORS'));
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "https://bizstart-ai.vercel.app"
+      ];
+
+      // Allow exact matches
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
       }
 
-      return callback(null, true);
+      // Allow all Vercel preview deployments
+      if (origin.includes("vercel.app")) {
+        return callback(null, true);
+      }
+
+      console.log("Blocked by CORS:", origin);
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
   })
@@ -43,14 +55,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/progress', progressRoutes);
 
-
-// temp fix: frontend is calling /api/recommendations directly instead of /api/ai/recommendations
-// intercepting it here so they don't have to change their code
+// temporary route fix for frontend calling wrong endpoint
 app.post('/api/recommendations', async (req, res, next) => {
   try {
-    const { businessName, industry, stage } = req.body;
+    const { industry, stage } = req.body;
 
-    // return mock data for the dashboard
     const recommendations = [
       { 
         title: 'Market Entry Strategy', 
@@ -84,9 +93,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'BizStart AI Backend Running' });
 });
 
-// global error handler must be last
+// global error handler (must be last)
 app.use(errorHandler);
 
 module.exports = app;
-
-
